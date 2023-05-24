@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.order.dto.OrderDTO;
 import ru.job4j.order.model.Order;
 import ru.job4j.order.service.OrderService;
 
@@ -44,11 +45,11 @@ public class OrderController {
      * и статус ответа NOT_FOUND.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Order> findById(@PathVariable int id) {
-        var card = orderService.findById(id);
+    public ResponseEntity<OrderDTO> findById(@PathVariable int id) {
+        var order = orderService.findById(id);
         return new ResponseEntity<>(
-                card.orElse(new Order()),
-                card.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
+                order.orElse(new OrderDTO()),
+                order.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND
         );
     }
 

@@ -1,5 +1,6 @@
 package ru.job4j.order.service;
 
+import ru.job4j.order.dto.OrderDTO;
 import ru.job4j.order.model.Order;
 
 import java.util.List;
@@ -24,9 +25,9 @@ public interface OrderService {
      * Получить заказ по идентификатору
      *
      * @param id идентификатор заказа
-     * @return Optional.of(order) если заказ найден, иначе Optional.empty()
+     * @return Optional.of(orderDTO) если заказ найден, иначе Optional.empty()
      */
-    Optional<Order> findById(int id);
+    Optional<OrderDTO> findById(int id);
 
     /**
      * Получить список всез заказов

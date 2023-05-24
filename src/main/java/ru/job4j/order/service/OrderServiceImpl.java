@@ -2,6 +2,9 @@ package ru.job4j.order.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+import ru.job4j.order.dto.DishDTO;
+import ru.job4j.order.dto.OrderDTO;
 import ru.job4j.order.model.Order;
 import ru.job4j.order.repository.OrderRepository;
 
@@ -22,6 +25,8 @@ public class OrderServiceImpl implements OrderService {
      */
     private final OrderRepository orderRepository;
 
+    private final RestTemplate restTemplate;
+
     /**
      * Сохранить заказ
      *
@@ -37,11 +42,26 @@ public class OrderServiceImpl implements OrderService {
      * Получить заказ по идентификатору
      *
      * @param id идентификатор заказа
-     * @return Optional.of(order) если заказ найден, иначе Optional.empty()
+     * @return Optional.of(orderDTO) если заказ найден, иначе Optional.empty()
      */
     @Override
-    public Optional<Order> findById(int id) {
-        return orderRepository.findById(id);
+    public Optional<OrderDTO> findById(int id) {
+        Optional<OrderDTO> result = Optional.empty();
+        List<DishDTO> dishDTOS;
+        var orderOptional = orderRepository.findById(id);
+        if (orderOptional.isPresent()) {
+            dishDTOS = orderOptional.get().getDishIds().stream()
+                    .map(this::findDishById)
+                    .filter(Optional::isPresent)
+                    .map(Optional::get)
+                    .toList();
+            result = Optional.of(OrderDTO.builder()
+                    .order(orderOptional.get())
+                    .dish(dishDTOS)
+                    .build());
+        }
+
+        return result;
     }
 
     /**
@@ -85,5 +105,18 @@ public class OrderServiceImpl implements OrderService {
             result = true;
         }
         return result;
+    }
+
+    /**
+     * Метод выполняет GET-запрос к удаленному вэб-сервису
+     * @param id идентификатор
+     * @return объект типа DishDTO
+     */
+    private Optional<DishDTO> findDishById(int id) {
+        var apiUrl = "http://localhost:8080/dish/";
+        return Optional.ofNullable(restTemplate.getForEntity(
+                String.format(apiUrl + "%s", id),
+                DishDTO.class
+        ).getBody());
     }
 }

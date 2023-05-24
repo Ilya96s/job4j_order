@@ -38,4 +38,11 @@ public class Order {
             joinColumns = @JoinColumn(name = "order_id"),
             inverseJoinColumns = @JoinColumn(name = "product_id"))
     private List<Product> products = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(
+            name = "order_dishes",
+            joinColumns = @JoinColumn(name = "order_id"))
+    @Column(name = "dish_id")
+    private List<Integer> dishIds = new ArrayList<>();
 }
