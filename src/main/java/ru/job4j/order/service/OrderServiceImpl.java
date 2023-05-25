@@ -1,6 +1,7 @@
 package ru.job4j.order.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.job4j.order.dto.DishDTO;
@@ -27,6 +28,8 @@ public class OrderServiceImpl implements OrderService {
 
     private final RestTemplate restTemplate;
 
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+
     /**
      * Сохранить заказ
      *
@@ -35,7 +38,10 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public Order create(Order order) {
-        return orderRepository.save(order);
+        var savedOrder = orderRepository.save(order);
+        kafkaTemplate.send("job4j_orders", savedOrder);
+        kafkaTemplate.send("messengers", savedOrder);
+        return savedOrder;
     }
 
     /**

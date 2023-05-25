@@ -12,6 +12,7 @@ import java.util.List;
  * @author Ilya Kaltygin
  */
 @Entity
+@Table(name = "orders")
 @Data
 @EqualsAndHashCode(of = "id")
 @ToString(of = {"id", "name", "status"})
